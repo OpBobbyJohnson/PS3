@@ -76,11 +76,30 @@ public class Catalog {
 		return cat;
 
 	}
-	public void AddBook(Catalog Cat, Book b){
+
+	// public void AddBook(String bookid ,Book b) throws BookException {
+	// try {
+	// Catalog Cat = ReadXMLFile();
+	//
+	// for (int i = 0; i < Cat.getBooks().size(); i++){
+	// if (b.getId() == bookid) {
+	// System.out.println("book "+bookid+" already exists ");
+	// throw new BookException(Cat, bookid);
+	// }
+	// else{
+	// Cat.appendChild(b);
+	// } catch (BookException bE) {
+	// throw bE;
+	// } catch (Exception e) {
+	// throw e;
+	// }
+	//
+	// }
+	// }
+	// }
+	private static void WriteXMLFile(Catalog cat) {
 		try {
-			for (int i = 0; i < Cat.getBooks().size(); i++){
-			
-			}
+
 			String basePath = new File("").getAbsolutePath();
 			basePath = basePath + "\\src\\main\\resources\\XMLFiles\\Books.xml";
 			File file = new File(basePath);
@@ -91,11 +110,26 @@ public class Catalog {
 			// output pretty printed
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-			jaxbMarshaller.marshal(b, file);
-			jaxbMarshaller.marshal(b, System.out);
+			jaxbMarshaller.marshal(cat, file);
+			jaxbMarshaller.marshal(cat, System.out);
 
 		} catch (JAXBException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void AddBook(String id, Book book) {
+		try {
+			Catalog cat = ReadXMLFile();
+			ArrayList<Book> alist = cat.getBooks();
+			for (Book bk : cat.getBooks())
+				if (bk.getId() == id)
+					throw new BookException(book);
+			alist.add(book);
+			cat.setBooks(alist);
+			WriteXMLFile(cat);
+		} catch (BookException e) {
+			System.out.println("Book" + id + " already exists.");
 		}
 	}
 }
