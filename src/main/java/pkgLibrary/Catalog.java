@@ -77,26 +77,6 @@ public class Catalog {
 
 	}
 
-	// public void AddBook(String bookid ,Book b) throws BookException {
-	// try {
-	// Catalog Cat = ReadXMLFile();
-	//
-	// for (int i = 0; i < Cat.getBooks().size(); i++){
-	// if (b.getId() == bookid) {
-	// System.out.println("book "+bookid+" already exists ");
-	// throw new BookException(Cat, bookid);
-	// }
-	// else{
-	// Cat.appendChild(b);
-	// } catch (BookException bE) {
-	// throw bE;
-	// } catch (Exception e) {
-	// throw e;
-	// }
-	//
-	// }
-	// }
-	// }
 	private static void WriteXMLFile(Catalog cat) {
 		try {
 
@@ -124,7 +104,7 @@ public class Catalog {
 			ArrayList<Book> alist = cat.getBooks();
 			for (Book bk : cat.getBooks())
 				if (bk.getId() == id)
-					throw new BookException(book);
+					throw new BookException(id);
 			alist.add(book);
 			cat.setBooks(alist);
 			WriteXMLFile(cat);

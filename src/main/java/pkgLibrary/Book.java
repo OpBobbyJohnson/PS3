@@ -1,7 +1,14 @@
 package pkgLibrary;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import pkgMain.XMLReader;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -60,23 +67,25 @@ public class Book {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
-
-	public Book (Catalog cat, String strPassedBookID)
+	public double getCost() {
+		return cost;
+	}
+	@XmlElement
+	public void setCost(double cost){
+		this.cost = cost;
+	}
+	public Book (String id) throws BookException
 	{
-	    for (Book b: cat.getBooks())
-	      {
-	         if (b.getId() == strPassedBookID) {
-	            this.id = b.id;
-	            this.author= b.author;
-	            this.title = b.title;
-	            this.genre = b.genre;
-	            this.price = b.price;
-	            this.publish_date = b.publish_date;
-	            this.description = b.description;
-	            this.cost = b.cost;
-	         }
-	      }
+		super();
+		Book InstOfBook = GetBook(id);
+		this.setId(id);
+		this.setAuthor(InstOfBook.getAuthor());
+		this.setTitle(InstOfBook.getTitle());
+		this.setGenre(InstOfBook.getGenre());
+		this.setPrice(InstOfBook.getPrice());
+		this.setCost(InstOfBook.getCost());
+		this.setPublish_date(InstOfBook.getPublish_date());
+		this.setDescription(InstOfBook.getDescription());
 	  
 	}
 	
@@ -115,8 +124,9 @@ public class Book {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public static Book GetBook(Catalog Cat ,String bookid) throws BookException {
+	public static Book GetBook(String bookid) throws BookException {
 		try {
+			Catalog Cat = ReadXMLFile();
 			for (Book b : Cat.getBooks()) {
 				if (b.getId() == bookid) {
 					return b;
@@ -132,5 +142,64 @@ public class Book {
 			throw e;
 		}
 	}
-	
+
+	private static Catalog ReadXMLFile() {
+
+		Catalog cat = null;
+
+		String basePath = new File("").getAbsolutePath();
+		basePath = basePath + "\\src\\main\\resources\\XMLFiles\\Books.xml";
+		File file = new File(basePath);
+
+		System.out.println(file.getAbsolutePath());
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(Catalog.class);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			cat = (Catalog) jaxbUnmarshaller.unmarshal(file);
+			System.out.println(cat);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+		return cat;
+
+	}
+
+	private static void WriteXMLFile(Catalog cat) {
+		try {
+
+			String basePath = new File("").getAbsolutePath();
+			basePath = basePath + "\\src\\main\\resources\\XMLFiles\\Books.xml";
+			File file = new File(basePath);
+
+			JAXBContext jaxbContext = JAXBContext.newInstance(Catalog.class);
+			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+			// output pretty printed
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+			jaxbMarshaller.marshal(cat, file);
+			jaxbMarshaller.marshal(cat, System.out);
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void AddBook(String id, Book book) {
+		try {
+			Catalog cat = ReadXMLFile();
+			ArrayList<Book> alist = cat.getBooks();
+			for (Book bk : cat.getBooks())
+				if (bk.getId() == id)
+					throw new BookException(id);
+			alist.add(book);
+			cat.setBooks(alist);
+			WriteXMLFile(cat);
+		} catch (BookException e) {
+			System.out.println("Book" + id + " already exists.");
+		}
+	}
 }
+	
+
